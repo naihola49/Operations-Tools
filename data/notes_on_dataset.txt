@@ -1,7 +1,7 @@
 kaggle link: https://www.kaggle.com/datasets/supergus/multistage-continuousflow-manufacturing-process
 
 Description of physical setup:		
-The data comes from a continuous flow process.		
+The data comes from a continuous flow process. 1 Production run	
 Sample rate is 1 Hz.		
 In the first stage, Machines 1, 2,  and 3 operate in parallel, and feed their outputs into a step that combines the flows.		
 Output from the combiner is measured in 15 locations. These measurements are the primary measurements to predict.		
