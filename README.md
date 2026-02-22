@@ -1,6 +1,6 @@
 # Motivation Behind Repo
 
-An attempt to further my passion/intrigue for ops/systems thinking found during my gap year from Harvard. This repo is used to distill information from readings + program models I find interesting. Repo created in Spring 2026; updates to come with future projects undertaken during remaining gap + senior year.
+An attempt to further my passion/intrigue found for ops/systems thinking during my gap year from Harvard. This repo is used to distill information from readings + program models I find interesting. Repo created in Spring 2026; updates to come with future projects undertaken during remaining gap + senior year.
 
 ## Directory Breakdown
 1. Predictions Failures: Explaining ML's poor performance in continuous processing manufacturing
