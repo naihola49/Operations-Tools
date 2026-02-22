@@ -175,7 +175,6 @@ def compute_time_lagged_correlation(series1, series2, max_lag=None, method='pear
                 corr = np.nan
         else:  # lag < 0
             # Negative lag: series1[t+|lag|] vs series2[t]
-            # This means series2 leads series1 (series2 happens BEFORE series1)
             lag_abs = abs(lag)
             if len(s1) > lag_abs:
                 s1_shifted = s1[lag_abs:]
@@ -296,7 +295,6 @@ def compute_lag_matrix(series_dict, max_lag=None, method='pearson', location_nam
     corr_df = pd.DataFrame(corr_matrix, index=location_names, columns=location_names)
     
     # Try to infer flow order (locations with more positive lags leading others are upstream)
-    # Sum of lags: if location i leads many others (positive lags), it's upstream
     lag_sums = lag_df.sum(axis=1)
     if not lag_sums.isna().all():
         # Locations with more positive lag sums are upstream

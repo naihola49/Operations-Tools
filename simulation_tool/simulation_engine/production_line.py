@@ -49,8 +49,7 @@ class Station:
             return self.mean_processing_time
         
         # Use gamma distribution to match mean and CV
-        # For gamma: mean = shape * scale, CV = 1/sqrt(shape)
-        # So: shape = 1/(CV^2), scale = mean * CV^2
+        # For gamma: mean = shape * scale, CV = 1/sqrt(shape) -> summing multiple expo waiting periods
         if self.cv_processing > 0:
             shape = 1.0 / (self.cv_processing ** 2)
             scale = self.mean_processing_time / shape
@@ -136,6 +135,10 @@ class ProductionLine:
         self.completed_jobs = []
         self.job_arrival_times = {}
         self.job_completion_times = {}
+        self.arrival_queue = []  # Queue for arrivals that can't enter due to CONWIP limit
+        self.rejected_arrivals = 0  # Count of arrivals that were queued
+        self.queued_arrival_times = []  # Track when arrivals were queued
+        self.max_queue_length = 0  
         
         # Register event handlers
         self.simulator.register_handler(EventType.ARRIVAL, self._handle_arrival)
@@ -156,9 +159,12 @@ class ProductionLine:
             # Try to start processing at first station
             self._try_start_processing(0, job_id)
         else:
-            # System is full (CONWIP limit), reject or delay arrival
-            # For now, we'll just not accept it (could also delay)
-            pass
+            # System is full (CONWIP limit), queue the arrival
+            self.arrival_queue.append(self.simulator.clock)
+            self.rejected_arrivals += 1
+            self.queued_arrival_times.append(self.simulator.clock)
+            # Update maximum queue length
+            self.max_queue_length = max(self.max_queue_length, len(self.arrival_queue))
     
     def _try_start_processing(self, station_id: int, job_id: int):
         """Try to start processing a job at a station."""
@@ -182,7 +188,7 @@ class ProductionLine:
             )
             self.simulator.schedule_event(end_event)
         else:
-            # Station is busy, add to queue (avoid duplicates)
+            # Station is busy, add to queue 
             if job_id not in station.queue:
                 station.queue.append(job_id)
     
@@ -208,13 +214,18 @@ class ProductionLine:
             self.completed_jobs.append(job_id)
             self.system_wip -= 1
             
-            # Schedule new arrival immediately
-            if self.system_wip < self.conwip_level:
-                new_arrival = Event(
-                    time=self.simulator.clock,
-                    event_type=EventType.ARRIVAL
-                )
-                self.simulator.schedule_event(new_arrival)
+            # Check if we can accept a queued arrival (CONWIP allows it)
+            if self.arrival_queue and self.system_wip < self.conwip_level:
+                # Accept the next queued arrival
+                queued_time = self.arrival_queue.pop(0)
+                self.entity_counter += 1
+                job_id = self.entity_counter
+                self.system_wip += 1
+                # Record actual entry time (may be later than arrival time due to queuing)
+                self.job_arrival_times[job_id] = queued_time
+                
+                # Try to start processing at first station
+                self._try_start_processing(0, job_id)
         
         # Process next job in queue if any
         if station.queue:
@@ -309,7 +320,10 @@ class ProductionLine:
             'avg_wip': avg_wip,
             'total_completed': len(cycle_times),
             'station_stats': station_stats,
-            'simulation_time': self.simulator.clock
+            'simulation_time': self.simulator.clock,
+            'rejected_arrivals': self.rejected_arrivals,
+            'current_queue_length': len(self.arrival_queue),
+            'max_queue_length': self.max_queue_length
         }
     
     def update_parameters(
@@ -333,6 +347,10 @@ class ProductionLine:
         self.completed_jobs = []
         self.job_arrival_times = {}
         self.job_completion_times = {}
+        self.arrival_queue = []
+        self.rejected_arrivals = 0
+        self.queued_arrival_times = []
+        self.max_queue_length = 0
         self.stats_history = []
         
         for station in self.stations:
