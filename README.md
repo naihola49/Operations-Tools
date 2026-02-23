@@ -12,6 +12,10 @@ An attempt to further my passion/intrigue found for ops/systems thinking during 
 - The Goal: Build an interactive simulation tool demonstrating Factory Physics relationships (Little's Law, Kingman's approximation) to help understand how variability and utilization affect cycle time and WIP. Instead of trying to predict unpredictable outputs, simulate system behavior to explore what-if scenarios and test interventions before implementing them in production.
 - What I learned: Simulation is more valuable than prediction in manufacturing. Learned the logic of queueing, variable arrival and processing times, and effects of high utilization in mfg environments.
 
+3. EOQ Analysis Tool: Economic Order Quantity calculator and scenario tester
+- The Goal: Build an interactive analysis tool for EOQ models to optimize batch sizes by balancing setup costs and holding costs. Enable scenario testing to compare different parameter configurations and understand sensitivity to parameter changes.
+- What I learned: The trade-off between setup frequency and inventory carrying costs. How business constraints (discounts, safety stock) may justify deviations from theoretical EOQ. The robustness of EOQ to parameter estimation errors.
+
 ### Books Read:
 1. Factory Physics by Hopp & Spearman
     - The math models behind factory operations. Variability and high utilization directly blow up WIP/CT. Adding capacity is a bandaid over a deep wound; changes typically come from WIP caps and a focus on process.
